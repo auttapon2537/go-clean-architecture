@@ -1,0 +1,26 @@
+# Development stage with hot reload
+FROM golang:1.23-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Install ca-certificates for HTTPS requests
+RUN apk --no-cache add ca-certificates
+
+# Install Air for hot reloading
+RUN go install github.com/air-verse/air@latest
+
+# Copy go mod and sum files
+COPY go.mod go.sum ./
+
+# Download all dependencies
+RUN go mod download
+
+# Copy source code
+COPY . .
+
+# Expose port
+EXPOSE 8080
+
+# Run Air for hot reloading
+CMD ["air", "-c", ".air.toml"]
