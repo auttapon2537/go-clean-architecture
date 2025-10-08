@@ -43,18 +43,24 @@ Contains infrastructure implementations such as database connections.
 
 ### User Management
 
-- `POST /users/` - Create a new user
+- `POST /users` - Create a new user
 - `GET /users/:id` - Get a user by ID
-- `GET /users/?email=:email` - Get a user by email
+- `GET /users?email=:email` - Get a user by email
 - `GET /users/all` - Get all users
 - `PUT /users/:id` - Update a user
 - `DELETE /users/:id` - Delete a user
+
+### Documentation
+
+- `GET /openapi` - View the interactive API documentation (offline viewer)
+- `GET /openapi.json` - Download the OpenAPI specification in JSON format
+- `GET /openapi.yaml` - Download the OpenAPI specification in YAML format
 
 ## Example Requests
 
 ### Create a User
 ```bash
-curl -X POST http://localhost:8080/users/ \
+curl -X POST http://localhost:8080/users \
   -H "Content-Type: application/json" \
   -d '{
     "name": "John Doe",
@@ -70,7 +76,7 @@ curl http://localhost:8080/users/1
 
 ### Get a User by Email
 ```bash
-curl http://localhost:8080/users/?email=john.doe@example.com
+curl http://localhost:8080/users?email=john.doe@example.com
 ```
 
 ### Get All Users

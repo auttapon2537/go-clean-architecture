@@ -1,0 +1,329 @@
+openapi: 3.0.3
+info:
+  title: Go Clean Architecture API
+  description: API documentation for the Go Clean Architecture sample service.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+paths:
+  /health:
+    get:
+      summary: Health check
+      description: Returns the service health status.
+      responses:
+        '200':
+          description: Service is healthy.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+  /health/memory:
+    get:
+      summary: Memory health check
+      description: Returns the current memory usage statistics for the service.
+      responses:
+        '200':
+          description: Memory statistics.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemoryHealthStatus'
+  /test:
+    get:
+      summary: Test endpoint
+      description: Simple test endpoint used to verify routing.
+      responses:
+        '200':
+          description: Plain text acknowledgement.
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Test route working
+  /users:
+    post:
+      summary: Create user
+      description: Creates a new user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+      responses:
+        '201':
+          description: User created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: Invalid request payload.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Email already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Unexpected server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      summary: Get user by email
+      description: Returns a user that matches the supplied email query parameter.
+      parameters:
+        - in: query
+          name: email
+          schema:
+            type: string
+            format: email
+          required: true
+          description: Email address of the user to retrieve.
+      responses:
+        '200':
+          description: User retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: Email query parameter missing or invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Unexpected server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /users/all:
+    get:
+      summary: List users
+      description: Returns all users in the system.
+      responses:
+        '200':
+          description: List of users.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserResponse'
+        '500':
+          description: Unexpected server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /users/{id}:
+    get:
+      summary: Get user by ID
+      description: Returns a single user by identifier.
+      parameters:
+        - $ref: '#/components/parameters/UserID'
+      responses:
+        '200':
+          description: User retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: Invalid identifier supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      summary: Update user
+      description: Updates an existing user.
+      parameters:
+        - $ref: '#/components/parameters/UserID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+      responses:
+        '200':
+          description: User updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: Invalid request payload.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Unexpected server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete user
+      description: Deletes a user by identifier.
+      parameters:
+        - $ref: '#/components/parameters/UserID'
+      responses:
+        '200':
+          description: User deleted successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: Invalid identifier supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Unexpected server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  parameters:
+    UserID:
+      name: id
+      in: path
+      description: Numeric identifier of the user.
+      required: true
+      schema:
+        type: integer
+        format: int64
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          example: healthy
+        message:
+          type: string
+          example: Service is running
+    MemoryHealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          example: healthy
+        memory:
+          type: object
+          properties:
+            alloc:
+              type: string
+              example: 12.5 MB
+            totalAlloc:
+              type: string
+              example: 34.1 MB
+            sys:
+              type: string
+              example: 128.0 MB
+            numGC:
+              type: integer
+              example: 5
+            gcCPUFraction:
+              type: string
+              example: "0.0042"
+            numGoroutine:
+              type: integer
+              example: 12
+            maxAlloc:
+              type: string
+              example: 45.0 MB
+        timestamp:
+          type: string
+          format: date-time
+          example: 2024-08-01T12:34:56Z
+    UserRequest:
+      type: object
+      required:
+        - name
+        - email
+        - password
+      properties:
+        name:
+          type: string
+          example: Jane Doe
+        email:
+          type: string
+          format: email
+          example: jane.doe@example.com
+        password:
+          type: string
+          format: password
+          example: s3cur3pass
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        name:
+          type: string
+          example: Jane Doe
+        email:
+          type: string
+          format: email
+          example: jane.doe@example.com
+        created_at:
+          type: string
+          format: date-time
+          example: 2024-08-01T12:34:56Z
+        updated_at:
+          type: string
+          format: date-time
+          example: 2024-08-02T08:15:42Z
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: User not found
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: User deleted successfully
